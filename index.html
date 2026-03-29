@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COVENANT — Become What You Were Called To Be</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind = { config: {
+      theme: {
+        extend: {
+          colors: {
+            'c-black':   '#0a0a0a',
+            'c-charcoal':'#1a1a1a',
+            'c-dark':    '#111111',
+            'c-darker':  '#0f0f0f',
+            'c-red':     '#8b1a1a',
+            'c-gold':    '#c9a84c',
+            'c-white':   '#f0ede8',
+            'c-gray':    '#2b2b2b',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            body:    ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }}
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    *, *::before, *::after {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      box-sizing: border-box;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /* ── Noise grain overlay ── */
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.055'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      opacity: 1;
+      z-index: 1;
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.85s ease, transform 0.85s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .d1 { transition-delay: 0.15s; }
+    .d2 { transition-delay: 0.32s; }
+    .d3 { transition-delay: 0.49s; }
+
+    /* ── Pillar card entrance (overrides generic .reveal) ── */
+    .reveal.pillar-card {
+      opacity: 0;
+      transform: translateY(50px);
+      filter: blur(6px);
+      transition: opacity    1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform  1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter     1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.pillar-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0px);
+    }
+    /* d-delay overrides for pillar cards only */
+    .pillar-card.d1 { transition-delay: 0s;   }
+    .pillar-card.d2 { transition-delay: 0.2s; }
+    .pillar-card.d3 { transition-delay: 0.4s; }
+
+    /* ── Pillar card: left border pseudo-element ── */
+    .pillar-card {
+      position: relative;
+    }
+    .pillar-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2px;
+      height: 0;
+      background-color: #8b1a1a;
+      transition: height 0.3s ease;
+    }
+
+    /* ── Pillar card hover ── */
+    .pillar-card:hover {
+      transform: translateY(-8px) !important;
+      background-color: #222222 !important;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      transition: opacity    1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform  0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter     1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pillar-card:hover::before {
+      height: 100%;
+    }
+
+    /* ── Pillar numeral hover ── */
+    .pillar-numeral {
+      transition: color    0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity  0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pillar-card:hover .pillar-numeral {
+      color:   #c0392b !important;
+      opacity: 1       !important;
+    }
+
+    /* ── Hero title line enter ── */
+    @keyframes title-line-in {
+      from { opacity: 0; transform: translateY(60px); filter: blur(8px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0px); }
+    }
+    .title-line {
+      opacity: 0;
+      animation: title-line-in 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-play-state: paused;
+    }
+    .title-line.go { animation-play-state: running; }
+    .title-line:nth-child(1) { animation-delay: 0.2s;  }
+    .title-line:nth-child(2) { animation-delay: 0.45s; }
+    .title-line:nth-child(3) { animation-delay: 0.7s;  }
+
+    /* ── Hero subtitle enter ── */
+    @keyframes sub-in {
+      from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0px); }
+    }
+    .hero-sub {
+      opacity: 0;
+      animation: sub-in 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-play-state: paused;
+    }
+    .hero-sub.go { animation-play-state: running; }
+
+    /* ── Hero CTA enter ── */
+    @keyframes fade-blur-in {
+      from { opacity: 0; filter: blur(4px); }
+      to   { opacity: 1; filter: blur(0px); }
+    }
+    .hero-fade {
+      opacity: 0;
+      animation: fade-blur-in 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-play-state: paused;
+    }
+    .hero-fade.go { animation-play-state: running; }
+
+    /* ── EST enter (slow fade) ── */
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .hero-est {
+      opacity: 0;
+      animation: fade-in 1.8s ease forwards;
+      animation-play-state: paused;
+    }
+    .hero-est.go { animation-play-state: running; }
+
+    /* ── Hero glow pulse ── */
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.7; }
+    }
+    .hero-glow {
+      animation: glow-pulse 4s ease-in-out infinite;
+    }
+
+    /* ── EST divider ── */
+    .est-line {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .est-line::before,
+    .est-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2b2b2b;
+    }
+
+    /* ── Input reset ── */
+    input { border-radius: 0; }
+
+    /* ── Pillars grid line ── */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background-color: #1f1f1f;
+    }
+    @media (min-width: 768px) {
+      .pillars-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       JOIN CARD
+    ══════════════════════════════════════════════════ */
+
+    /* Card entrance */
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(50px); filter: blur(8px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0px); }
+    }
+    /* Card glow pulse */
+    @keyframes card-glow {
+      0%, 100% { box-shadow: 0 0 60px rgba(139,26,26,0.08); }
+      50%       { box-shadow: 0 0 60px rgba(139,26,26,0.15); }
+    }
+
+    .join-card {
+      background-color: #0f0f0f;
+      border: 1px solid #1e1e1e;
+      padding: 40px;
+      max-width: 480px;
+      margin: 0 auto;
+      opacity: 0;
+      animation: card-glow 3s ease-in-out infinite;
+      animation-play-state: paused; /* glow starts after entrance */
+    }
+    @media (min-width: 768px) {
+      .join-card { padding: 60px; }
+    }
+    .join-card.enter {
+      animation: card-enter 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+                 card-glow  3s ease-in-out 1.4s infinite;
+    }
+
+    /* ── Floating field ── */
+    .join-field {
+      position: relative;
+      margin-bottom: 28px;
+    }
+    .join-field:last-of-type { margin-bottom: 0; }
+
+    .join-field input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #2a2a2a;
+      outline: none;
+      padding: 18px 0 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.9rem;
+      color: #f0ede8;
+      letter-spacing: 0.04em;
+    }
+
+    /* Animated focus line via ::after on the field wrapper */
+    .join-field::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background-color: #8b1a1a;
+      transition: width 0.4s ease;
+    }
+    .join-field.focused::after  { width: 100%; }
+    .join-field.blurring::after { width: 0; transition: width 0.4s ease; }
+
+    /* Floating label */
+    .join-label {
+      position: absolute;
+      left: 0;
+      top: 18px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.85rem;
+      color: #606060;
+      letter-spacing: 0.08em;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  font-size  0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  color      0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .join-field.focused  .join-label,
+    .join-field.has-value .join-label {
+      transform: translateY(-24px);
+      font-size: 0.65rem;
+      color: #8b1a1a;
+    }
+
+    /* ── Submit button ── */
+    .join-btn {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      margin-top: 40px;
+      padding: 16px;
+      background-color: #8b1a1a;
+      color: #f0ede8;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.72rem;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .join-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: transform 0.6s ease;
+    }
+    .join-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139,26,26,0.3);
+    }
+    .join-btn:hover::before {
+      transform: translateX(200%);
+    }
+
+    /* ── Confirmation message ── */
+    .join-confirm {
+      display: none;
+      text-align: center;
+    }
+    .join-confirm.show { display: block; }
+
+    @keyframes confirm-enter {
+      from { opacity: 0; transform: translateY(30px); filter: blur(6px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0px); }
+    }
+    .confirm-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 600;
+      font-size: 2.2rem;
+      color: #f0ede8;
+      opacity: 0;
+      animation: confirm-enter 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .confirm-sub {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.85rem;
+      color: #606060;
+      opacity: 0;
+      margin-top: 12px;
+      animation: confirm-enter 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+    }
+  </style>
+</head>
+
+<body class="bg-c-black text-c-white font-body overflow-x-hidden">
+
+  <!-- ══════════════════════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════════════════════ -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50" style="border-bottom: 1px solid transparent; transition: background-color 0.5s ease, border-color 0.5s ease;">
+    <div class="max-w-7xl mx-auto px-6 md:px-12 py-5 flex items-center justify-between">
+
+      <a href="#" class="font-display font-bold uppercase" style="font-size: 1.3rem; letter-spacing: 0.18em; color: #f0ede8;">
+        Covenant
+      </a>
+
+      <a href="#join"
+         class="font-body font-light uppercase border px-5 py-2.5"
+         style="font-size: 0.7rem; letter-spacing: 0.22em; color: #f0ede8; border-color: rgba(240,237,232,0.45); transition: border-color 0.3s ease, color 0.3s ease;"
+         onmouseover="this.style.borderColor='#f0ede8'"
+         onmouseout="this.style.borderColor='rgba(240,237,232,0.45)'">
+        Join the Community
+      </a>
+
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO — full viewport height
+  ══════════════════════════════════════════════════════════ -->
+  <section class="relative grain min-h-screen flex flex-col items-center justify-center pb-16 overflow-hidden" style="background-color: #0a0a0a;">
+
+    <!-- Ambient radial crimson glow (static, z-0) -->
+    <div class="absolute inset-0 pointer-events-none z-0"
+         style="background: radial-gradient(ellipse 75% 55% at 50% 52%, rgba(139,26,26,0.07) 0%, transparent 68%);"></div>
+
+    <!-- Pulsing glow behind title (z-5) -->
+    <div class="hero-glow absolute pointer-events-none"
+         style="z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -54%);
+                width: 60%; height: 36vh;
+                background: radial-gradient(ellipse at center,
+                  rgba(139,26,26,0.55) 0%,
+                  rgba(139,26,26,0.18) 45%,
+                  transparent 72%);"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center px-6 max-w-5xl mx-auto w-full">
+
+      <!-- Main title — cinematic line reveal -->
+      <h1 id="h-title"
+          class="font-display font-bold leading-none mb-8"
+          style="font-size: clamp(2.8rem, 6.5vw, 5.5rem); letter-spacing: -0.015em; color: #f0ede8;">
+        <span class="title-line" style="display: block;">Become What</span>
+        <span class="title-line" style="display: block;">You Were Called</span>
+        <span class="title-line" style="display: block;">To Be</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p id="h-sub"
+         class="hero-sub font-body font-light mb-12 uppercase"
+         style="font-size: clamp(0.65rem, 1.4vw, 0.82rem); letter-spacing: 0.28em; color: #a0a0a0;">
+        COVENANT is not a clothing brand. It's a standard.
+      </p>
+
+      <!-- CTA -->
+      <div id="h-cta" class="hero-fade">
+        <a href="#join"
+           class="inline-block font-body font-light uppercase px-10 py-4 border"
+           style="color: #f0ede8; border-color: #8b1a1a; font-size: 0.72rem; letter-spacing: 0.26em; transition: background-color 0.3s ease;"
+           onmouseover="this.style.backgroundColor='rgba(139,26,26,0.18)'"
+           onmouseout="this.style.backgroundColor='transparent'">
+          Enter the Brotherhood
+        </a>
+      </div>
+
+      <!-- EST. 2025 -->
+      <div id="h-est"
+           class="hero-est est-line max-w-xs mx-auto mt-16">
+        <span class="font-body font-light uppercase" style="font-size: 0.65rem; letter-spacing: 0.32em; white-space: nowrap; color: #a0a0a0;">
+          EST. 2025
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Bottom fade-out -->
+    <div class="absolute bottom-0 left-0 right-0 h-28 pointer-events-none z-10"
+         style="background: linear-gradient(to bottom, transparent, #0a0a0a);"></div>
+
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       MANIFESTO
+  ══════════════════════════════════════════════════════════ -->
+  <section class="py-20 md:py-28 px-6" style="background-color: #111111;">
+    <div class="max-w-3xl mx-auto text-center">
+
+      <p class="reveal font-display font-semibold leading-snug mb-20"
+         style="font-size: clamp(1.6rem, 3.6vw, 2.8rem); color: #f0ede8;">
+        "The modern man is lost.<br>
+        Not because the standard disappeared.<br>
+        Because he stopped looking for it."
+      </p>
+
+      <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-14">
+        <span class="reveal d1 font-body font-light uppercase" style="font-size: 0.75rem; letter-spacing: 0.32em; color: #f0ede8;">Discipline</span>
+        <span class="reveal d1 hidden md:block" style="color: #3a3a3a;">—</span>
+        <span class="reveal d2 font-body font-light uppercase" style="font-size: 0.75rem; letter-spacing: 0.32em; color: #f0ede8;">Character</span>
+        <span class="reveal d2 hidden md:block" style="color: #3a3a3a;">—</span>
+        <span class="reveal d3 font-body font-light uppercase" style="font-size: 0.75rem; letter-spacing: 0.32em; color: #f0ede8;">Preparation</span>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       THREE PILLARS
+  ══════════════════════════════════════════════════════════ -->
+  <section class="py-16 md:py-24 px-6" style="background-color: #0a0a0a;">
+    <div class="max-w-6xl mx-auto">
+
+      <p class="reveal font-body uppercase text-center mb-14"
+         style="font-size: 0.65rem; letter-spacing: 0.32em; color: #a0a0a0;">
+        The Foundation
+      </p>
+
+      <div class="pillars-grid">
+
+        <!-- I -->
+        <div class="reveal d1 pillar-card p-10 md:p-14" style="background-color: #1a1a1a;">
+          <p class="pillar-numeral font-display font-bold mb-8" style="font-size: 3rem; color: #8b1a1a; opacity: 0.55; line-height: 1;">I</p>
+          <h3 class="font-display font-bold mb-4" style="font-size: 1.5rem; letter-spacing: 0.04em; color: #f0ede8;">Discipline</h3>
+          <p class="font-body font-light leading-relaxed" style="font-size: 0.88rem; color: #9a9a9a;">
+            Not the kind that waits for motivation. The kind that moves before the feeling arrives. Discipline is not a habit — it is a decision made once, carried every day.
+          </p>
+        </div>
+
+        <!-- II -->
+        <div class="reveal d2 pillar-card p-10 md:p-14" style="background-color: #1a1a1a;">
+          <p class="pillar-numeral font-display font-bold mb-8" style="font-size: 3rem; color: #8b1a1a; opacity: 0.55; line-height: 1;">II</p>
+          <h3 class="font-display font-bold mb-4" style="font-size: 1.5rem; letter-spacing: 0.04em; color: #f0ede8;">Character</h3>
+          <p class="font-body font-light leading-relaxed" style="font-size: 0.88rem; color: #9a9a9a;">
+            What remains when no one is watching. Character is not built in the moment of the test — it is the sum of every quiet choice made in the dark, long before the test arrives.
+          </p>
+        </div>
+
+        <!-- III -->
+        <div class="reveal d3 pillar-card p-10 md:p-14" style="background-color: #1a1a1a;">
+          <p class="pillar-numeral font-display font-bold mb-8" style="font-size: 3rem; color: #8b1a1a; opacity: 0.55; line-height: 1;">III</p>
+          <h3 class="font-display font-bold mb-4" style="font-size: 1.5rem; letter-spacing: 0.04em; color: #f0ede8;">Preparation</h3>
+          <p class="font-body font-light leading-relaxed" style="font-size: 0.88rem; color: #9a9a9a;">
+            The prepared man does not ask for more time. He does not wait for the right moment. Preparation is the posture of a man who understands that the moment is already coming.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       THE CALL
+  ══════════════════════════════════════════════════════════ -->
+  <section class="pt-16 md:pt-20 pb-20 md:pb-28 px-6" style="background-color: #0a0a0a;">
+    <div class="max-w-3xl mx-auto text-center">
+
+      <!-- Vertical line top -->
+      <div class="reveal w-px h-14 mx-auto mb-14"
+           style="background: linear-gradient(to bottom, transparent, #2b2b2b);"></div>
+
+      <h2 class="reveal font-display font-bold leading-tight mb-12"
+          style="font-size: clamp(2.2rem, 5vw, 4rem); color: #f0ede8;">
+        "The standard was shown.<br>The work is yours."
+      </h2>
+
+      <p class="reveal font-body font-light max-w-xl mx-auto"
+         style="font-size: 1.05rem; line-height: 1.9; letter-spacing: 0.02em; color: #a0a0a0;">
+        COVENANT exists for the man who has grown tired of noise. Who understands that becoming who he was called to be is not an event — it is a continuous act of will. This is not a community of achievement. It is a community of preparation.
+      </p>
+
+      <!-- Vertical line bottom -->
+      <div class="reveal w-px h-14 mx-auto mt-14"
+           style="background: linear-gradient(to top, transparent, #2b2b2b);"></div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       EMAIL CAPTURE
+  ══════════════════════════════════════════════════════════ -->
+  <section id="join" class="pt-16 md:pt-20 pb-20 md:pb-28 px-6" style="background-color: #0f0f0f; border-top: 1px solid #1a1a1a;">
+    <div class="text-center mb-12">
+
+      <p class="reveal font-body font-light uppercase mb-4"
+         style="font-size: 0.65rem; letter-spacing: 0.32em; color: #a0a0a0;">
+        The Preparation
+      </p>
+
+      <h2 class="reveal font-display font-bold mb-3"
+          style="font-size: clamp(1.9rem, 4vw, 2.8rem); color: #f0ede8;">
+        Join the Preparation
+      </h2>
+
+      <p class="reveal font-body font-light uppercase"
+         style="font-size: 0.68rem; letter-spacing: 0.25em; color: #a0a0a0;">
+        No noise. No motivation. Just the work.
+      </p>
+
+    </div>
+
+    <!-- Card -->
+    <div id="join-card" class="join-card">
+
+      <!-- Form -->
+      <form id="join-form" novalidate>
+
+        <div class="join-field" data-field>
+          <label class="join-label">Name</label>
+          <input type="text" autocomplete="off">
+        </div>
+
+        <div class="join-field" data-field>
+          <label class="join-label">Email</label>
+          <input type="email" autocomplete="off">
+        </div>
+
+        <div class="join-field" data-field>
+          <label class="join-label">WhatsApp</label>
+          <input type="tel" autocomplete="off">
+        </div>
+
+        <button type="submit" class="join-btn">Enter the Preparation</button>
+
+      </form>
+
+      <!-- Confirmation (hidden until submit) -->
+      <div id="join-confirm" class="join-confirm">
+        <p class="confirm-title">The preparation begins.</p>
+        <p class="confirm-sub">We'll be in touch.</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════ -->
+  <footer class="py-14 px-6" style="background-color: #0a0a0a; border-top: 1px solid #141414;">
+    <div class="text-center">
+
+      <p class="font-display font-bold mb-3"
+         style="font-size: clamp(1.4rem, 2.8vw, 2.2rem); letter-spacing: 0.14em; color: #f0ede8; opacity: 0.2;">
+        COVENANT
+      </p>
+
+      <p class="font-body font-light uppercase"
+         style="font-size: 0.65rem; letter-spacing: 0.3em; color: #a0a0a0;">
+        Become what you were called to be
+      </p>
+
+      <p class="font-body mt-8"
+         style="font-size: 0.6rem; letter-spacing: 0.12em; color: #4a4a4a;">
+        © 2025
+      </p>
+
+    </div>
+  </footer>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════════════ -->
+  <script>
+    // ── Navbar scroll behavior ──────────────────────────────
+    const navbar = document.getElementById('navbar');
+    let lastScroll = 0;
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > 60) {
+        navbar.style.backgroundColor = '#0a0a0a';
+        navbar.style.borderBottomColor = '#1a1a1a';
+      } else {
+        navbar.style.backgroundColor = 'transparent';
+        navbar.style.borderBottomColor = 'transparent';
+      }
+      lastScroll = y;
+    }, { passive: true });
+
+
+    // ── Hero entrance animation ─────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const go = (selector, delay) =>
+        setTimeout(() => document.querySelectorAll(selector)
+          .forEach(el => el.classList.add('go')), delay);
+
+      // Title lines: inter-line delays (0.2s / 0.45s / 0.7s) handled in CSS
+      go('#h-title .title-line', 0);
+
+      // Subtitle (1.1s)
+      go('#h-sub', 1100);
+
+      // CTA (1.5s)
+      go('#h-cta', 1500);
+
+      // EST (1.9s, duration handled in CSS)
+      go('#h-est', 1900);
+    });
+
+
+    // ── Scroll reveal (Intersection Observer) ───────────────
+    const revealEls = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    revealEls.forEach(el => observer.observe(el));
+
+
+    // ── Join card: IntersectionObserver entrance ─────────────
+    const joinCard = document.getElementById('join-card');
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          joinCard.classList.add('enter');
+          cardObserver.unobserve(joinCard);
+        }
+      });
+    }, { threshold: 0.15 });
+    cardObserver.observe(joinCard);
+
+
+    // ── Join card: floating labels + focus line ───────────────
+    document.querySelectorAll('.join-field[data-field]').forEach(field => {
+      const input = field.querySelector('input');
+
+      input.addEventListener('focus', () => {
+        field.classList.add('focused');
+        field.classList.remove('blurring');
+      });
+
+      input.addEventListener('blur', () => {
+        field.classList.remove('focused');
+        if (input.value.trim()) {
+          field.classList.add('has-value');
+        } else {
+          field.classList.remove('has-value');
+          // retract line right-to-left via blurring class
+          field.classList.add('blurring');
+          setTimeout(() => field.classList.remove('blurring'), 400);
+        }
+      });
+
+      input.addEventListener('input', () => {
+        if (input.value.trim()) {
+          field.classList.add('has-value');
+        } else {
+          field.classList.remove('has-value');
+        }
+      });
+    });
+
+
+    // ── Join form: submit → confirmation ─────────────────────
+    document.getElementById('join-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form    = document.getElementById('join-form');
+      const confirm = document.getElementById('join-confirm');
+
+      form.style.transition = 'opacity 0.4s ease';
+      form.style.opacity = '0';
+
+      setTimeout(() => {
+        form.style.display = 'none';
+        confirm.classList.add('show');
+      }, 400);
+    });
+  </script>
+
+</body>
+</html>
