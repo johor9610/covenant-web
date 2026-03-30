@@ -447,6 +447,134 @@
     .join-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(107,124,74,0.3); }
     .join-btn:hover::before { transform: translateX(200%); }
 
+    /* ── Phone field (dial selector + number) ── */
+    .join-field--phone .phone-row {
+      display: flex;
+      align-items: flex-end;
+      position: relative;
+      border-bottom: 1px solid var(--border-field);
+      cursor: text;
+    }
+    .join-field--phone input {
+      border-bottom: none;
+      padding-left: 0;
+      flex: 1;
+      transition: padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.4s ease, color 0.4s ease;
+    }
+    .join-field--phone.focused input,
+    .join-field--phone.has-value input {
+      padding-left: 8px;
+    }
+    .join-field--phone input::placeholder {
+      color: transparent;
+      transition: color 0.3s ease;
+    }
+    .join-field--phone.focused input::placeholder,
+    .join-field--phone.has-value input::placeholder {
+      color: var(--text-faint);
+      opacity: 0.5;
+    }
+    .join-field--phone::after {
+      bottom: 0;
+    }
+    .join-field--phone .join-label {
+      left: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  font-size  0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  color      0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  left       0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .join-field--phone.focused   .join-label,
+    .join-field--phone.has-value .join-label {
+      left: 90px;
+    }
+    .dial-selector {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      /* hidden by default — no space taken */
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      padding: 18px 0 8px;
+      border-right: none;
+      pointer-events: none;
+      transition: width    0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity  0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  padding  0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  color    0.3s ease;
+    }
+    /* visible when phone field is active */
+    .join-field--phone.focused   .dial-selector,
+    .join-field--phone.has-value .dial-selector {
+      width: 82px;
+      opacity: 1;
+      padding: 18px 10px 8px 0;
+      border-right: 1px solid var(--border-field);
+      pointer-events: auto;
+    }
+    .dial-selector:hover { color: var(--text-primary); }
+    .dial-flag { font-size: 1rem; line-height: 1; }
+    .dial-code { font-size: 0.78rem; }
+    .dial-arrow {
+      font-size: 0.5rem;
+      opacity: 0.5;
+      margin-left: 2px;
+      transition: transform 0.25s ease;
+    }
+    .dial-selector.open .dial-arrow { transform: rotate(180deg); }
+
+    .dial-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 100;
+      background-color: var(--bg-deep);
+      border: 1px solid var(--border-form);
+      min-width: 220px;
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+      scrollbar-width: thin;
+      scrollbar-color: #3a3a3a transparent;
+    }
+    .dial-dropdown.open { display: block; }
+    .dial-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      letter-spacing: 0.04em;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .dial-option:hover { background-color: rgba(107,124,74,0.12); color: var(--text-primary); }
+    .dial-option.selected { color: #6b7c4a; }
+    .dial-option-flag { font-size: 1rem; }
+    .dial-option-name { flex: 1; }
+    .dial-option-code { opacity: 0.6; font-size: 0.72rem; }
+    .dial-divider {
+      height: 1px;
+      background: var(--border-form);
+      margin: 4px 0;
+      opacity: 0.4;
+    }
     /* ── Confirmation ── */
     .join-confirm { display: none; text-align: center; }
     .join-confirm.show { display: block; }
@@ -723,12 +851,22 @@
           <input id="field-email" type="email" autocomplete="off">
         </div>
 
-        <div class="join-field" data-field>
+        <div class="join-field join-field--phone" data-field>
           <label class="join-label" data-i18n="field-whatsapp">WhatsApp</label>
-          <input id="field-whatsapp" type="tel" autocomplete="off">
+          <div class="phone-row">
+            <button type="button" class="dial-selector" id="dial-selector-btn" aria-label="Select country code">
+              <span class="dial-flag" id="dial-flag">🇨🇴</span>
+              <span class="dial-code" id="dial-code-display">+57</span>
+              <span class="dial-arrow">▼</span>
+            </button>
+            <input id="field-whatsapp" type="tel" autocomplete="off" placeholder="300 000 0000">
+            <div class="dial-dropdown" id="dial-dropdown"></div>
+          </div>
         </div>
 
         <button type="submit" class="join-btn" data-i18n="join-btn">Enter the Preparation</button>
+
+        <p id="join-error" style="display:none; margin-top:0.75rem; font-size:0.75rem; letter-spacing:0.12em; color:var(--text-muted); text-align:center; text-transform:uppercase;">Something went wrong. Try again.</p>
 
       </form>
 
@@ -986,24 +1124,119 @@
     });
 
     /* ══════════════════════════════════════════════════
-       FORM SUBMIT → CONFIRMATION
+       DIAL CODE SELECTOR
+    ══════════════════════════════════════════════════ */
+    const COUNTRIES = [
+      { flag: '🇨🇴', name: 'Colombia',             code: '+57'    },
+      { flag: '🇺🇸', name: 'Estados Unidos',        code: '+1'     },
+      { flag: '🇲🇽', name: 'México',                code: '+52'    },
+      { flag: '🇪🇸', name: 'España',                code: '+34'    },
+      { flag: '🇦🇷', name: 'Argentina',             code: '+54'    },
+      { flag: '🇻🇪', name: 'Venezuela',             code: '+58'    },
+      { flag: '🇨🇱', name: 'Chile',                 code: '+56'    },
+      { flag: '🇵🇪', name: 'Perú',                  code: '+51'    },
+      { flag: '🇪🇨', name: 'Ecuador',               code: '+593'   },
+      { flag: '🇵🇦', name: 'Panamá',                code: '+507'   },
+      { flag: '🇩🇴', name: 'República Dominicana',  code: '+1-809' },
+      { flag: '🇬🇹', name: 'Guatemala',             code: '+502'   },
+      { flag: '🇨🇷', name: 'Costa Rica',            code: '+506'   },
+      { flag: '🇺🇾', name: 'Uruguay',               code: '+598'   },
+      { flag: '🇵🇾', name: 'Paraguay',              code: '+595'   },
+      { flag: '🇧🇴', name: 'Bolivia',               code: '+591'   },
+      { flag: '🇭🇳', name: 'Honduras',              code: '+504'   },
+      { flag: '🇸🇻', name: 'El Salvador',           code: '+503'   },
+      { flag: '🇳🇮', name: 'Nicaragua',             code: '+505'   },
+      { flag: '🇬🇧', name: 'Reino Unido',           code: '+44'    },
+      { flag: '🇨🇦', name: 'Canadá',                code: '+1'     },
+      { flag: '🇧🇷', name: 'Brasil',                code: '+55'    },
+      { flag: '🇫🇷', name: 'Francia',               code: '+33'    },
+      { flag: '🇩🇪', name: 'Alemania',              code: '+49'    },
+      { flag: '🇮🇹', name: 'Italia',                code: '+39'    },
+      { flag: '🇵🇹', name: 'Portugal',              code: '+351'   },
+    ];
+
+    let selectedDialCode = '+57';
+
+    (function initDialDropdown() {
+      const btn      = document.getElementById('dial-selector-btn');
+      const dropdown = document.getElementById('dial-dropdown');
+      const flagEl   = document.getElementById('dial-flag');
+      const codeEl   = document.getElementById('dial-code-display');
+
+      // Build options
+      COUNTRIES.forEach((c, i) => {
+        if (i === 10) { // divider after first common block (10 entries before RD)
+          // no divider needed in this list order
+        }
+        const opt = document.createElement('div');
+        opt.className = 'dial-option' + (i === 0 ? ' selected' : '');
+        opt.dataset.code = c.code;
+        opt.dataset.flag = c.flag;
+        opt.innerHTML = `<span class="dial-option-flag">${c.flag}</span><span class="dial-option-name">${c.name}</span><span class="dial-option-code">${c.code}</span>`;
+        opt.addEventListener('click', () => {
+          selectedDialCode = c.code;
+          flagEl.textContent = c.flag;
+          codeEl.textContent = c.code;
+          dropdown.querySelectorAll('.dial-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          closeDropdown();
+        });
+        dropdown.appendChild(opt);
+      });
+
+      function openDropdown() {
+        dropdown.classList.add('open');
+        btn.classList.add('open');
+      }
+      function closeDropdown() {
+        dropdown.classList.remove('open');
+        btn.classList.remove('open');
+      }
+
+      // Prevent blur of the number input when interacting with selector/dropdown
+      btn.addEventListener('mousedown', (e) => e.preventDefault());
+      dropdown.addEventListener('mousedown', (e) => e.preventDefault());
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!btn.contains(e.target) && !dropdown.contains(e.target)) closeDropdown();
+      });
+
+      // Clicking anywhere on the phone field (including empty area) focuses the input
+      const phoneField = document.querySelector('.join-field--phone');
+      phoneField.addEventListener('click', () => {
+        document.getElementById('field-whatsapp').focus();
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════
+       FORM SUBMIT → BREVO → CONFIRMATION
     ══════════════════════════════════════════════════ */
     document.getElementById('join-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const form    = document.getElementById('join-form');
       const confirm = document.getElementById('join-confirm');
       const btn     = form.querySelector('.join-btn');
+      const errEl   = document.getElementById('join-error');
 
       const name     = document.getElementById('field-name').value.trim();
       const email    = document.getElementById('field-email').value.trim();
-      const whatsapp = document.getElementById('field-whatsapp').value.trim();
+      const rawNum   = document.getElementById('field-whatsapp').value.trim();
+      const whatsapp = rawNum ? selectedDialCode.replace('-', '') + rawNum : '';
 
+      errEl.style.display = 'none';
       btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = '...';
 
       try {
         const res = await fetch('/.netlify/functions/subscribe', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ name, email, whatsapp }),
         });
 
@@ -1017,6 +1250,8 @@
         }, 400);
       } catch {
         btn.disabled = false;
+        btn.textContent = originalLabel;
+        errEl.style.display = 'block';
       }
     });
   </script>

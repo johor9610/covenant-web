@@ -56,7 +56,7 @@ exports.handler = async (event) => {
       email,
       listIds: [3],
       attributes: {
-        FIRSTNAME: name,
+        NOMBRE: name,
         SMS: whatsapp,
       },
       updateEnabled: true,
