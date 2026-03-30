@@ -715,17 +715,17 @@
 
         <div class="join-field" data-field>
           <label class="join-label" data-i18n="field-name">Name</label>
-          <input type="text" autocomplete="off">
+          <input id="field-name" type="text" autocomplete="off">
         </div>
 
         <div class="join-field" data-field>
           <label class="join-label" data-i18n="field-email">Email</label>
-          <input type="email" autocomplete="off">
+          <input id="field-email" type="email" autocomplete="off">
         </div>
 
         <div class="join-field" data-field>
           <label class="join-label" data-i18n="field-whatsapp">WhatsApp</label>
-          <input type="tel" autocomplete="off">
+          <input id="field-whatsapp" type="tel" autocomplete="off">
         </div>
 
         <button type="submit" class="join-btn" data-i18n="join-btn">Enter the Preparation</button>
@@ -988,18 +988,36 @@
     /* ══════════════════════════════════════════════════
        FORM SUBMIT → CONFIRMATION
     ══════════════════════════════════════════════════ */
-    document.getElementById('join-form').addEventListener('submit', (e) => {
+    document.getElementById('join-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const form    = document.getElementById('join-form');
       const confirm = document.getElementById('join-confirm');
+      const btn     = form.querySelector('.join-btn');
 
-      form.style.transition = 'opacity 0.4s ease';
-      form.style.opacity    = '0';
+      const name     = document.getElementById('field-name').value.trim();
+      const email    = document.getElementById('field-email').value.trim();
+      const whatsapp = document.getElementById('field-whatsapp').value.trim();
 
-      setTimeout(() => {
-        form.style.display = 'none';
-        confirm.classList.add('show');
-      }, 400);
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, whatsapp }),
+        });
+
+        if (!res.ok) throw new Error('Subscribe failed');
+
+        form.style.transition = 'opacity 0.4s ease';
+        form.style.opacity    = '0';
+        setTimeout(() => {
+          form.style.display = 'none';
+          confirm.classList.add('show');
+        }, 400);
+      } catch {
+        btn.disabled = false;
+      }
     });
   </script>
 
