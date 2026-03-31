@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 exports.handler = async (event) => {
   console.log('[subscribe] Method:', event.httpMethod);
   console.log('[subscribe] Headers:', JSON.stringify(event.headers));
